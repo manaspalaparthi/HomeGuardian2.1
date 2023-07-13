@@ -13,7 +13,7 @@ import imageio
 import imageio.plugins.ffmpeg
 import cv2
 
-from deface.Deface.centerface import CenterFace
+from defacecv.Deface.centerface import CenterFace
 
 def scale_bb(x1, y1, x2, y2, mask_scale=1.0):
     s = mask_scale - 1.0

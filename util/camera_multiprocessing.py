@@ -37,7 +37,7 @@ def process_frame(frame_queue):
 def process_frame_rgb(frame_queue):
     # Process the frame here (e.g., perform some image manipulation)
 
-   # deface.run()
+   # defacecv.run()
 
     while True:
         frame = frame_queue.get()
