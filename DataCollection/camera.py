@@ -30,8 +30,12 @@ class WebcamStream(Thread):
         # thread instantiation
         self.t = Thread(target=self.update, args=())
         self.t.daemon = True  # daemon threads run in background
-
         self.is_recording = False
+
+    def stop_thread(self):
+        self.stopped = True
+        self.t.join()
+        print("Thread stopped.")
 
     # method to start thread
     def start(self):
@@ -40,29 +44,35 @@ class WebcamStream(Thread):
 
     # method passed to thread to read next available frame
     def update(self):
-        while True:
-            if self.stopped is True:
-                break
 
-            cv2.waitKey(20)
+        try:
+            while True:
+                if self.stopped is True:
+                    break
 
-            if self.paused is True:
-                cv2.waitKey(-1)
+                cv2.waitKey(20)
 
-            self.grabbed, self.frame = self.vcap.read()
+                if self.paused is True:
+                    cv2.waitKey(-1)
 
-            _, encoded_frame = cv2.imencode(".jpg", self.frame)
-            frame_base64 = base64.b64encode(encoded_frame).decode("utf-8")
-            # Create an HTML string to display the video frame
-            self.html_str = f'<img src="data:image/jpeg;base64,{frame_base64}" width="640" height="480">'
+                self.grabbed, self.frame = self.vcap.read()
 
-            if self.is_recording:
-                self.video_writer.write(self.frame)
+                _, encoded_frame = cv2.imencode(".jpg", self.frame)
+                frame_base64 = base64.b64encode(encoded_frame).decode("utf-8")
+                # Create an HTML string to display the video frame
+                self.html_str = f'<img src="data:image/jpeg;base64,{frame_base64}" width="640" height="480">'
 
-            if self.grabbed is False:
-                print('[Exiting] No more frames to read')
-                self.stopped = True
-                break
+                if self.is_recording:
+                    self.video_writer.write(self.frame)
+
+                if self.grabbed is False:
+                    print('[Exiting] No more frames to read')
+                    self.stopped = True
+                    break
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt")
+            self.stopped = True
+            self.t.join()
         self.vcap.release()
 
     # method to return latest read frame

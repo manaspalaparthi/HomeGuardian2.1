@@ -77,7 +77,7 @@ class DataCollector:
 
                 self.stop.click(self.stop_recording, outputs=gr.outputs.HTML(label="Video Stream"))
 
-        return block.launch(enable_queue=True)
+        return block.launch(enable_queue=True, server_port=8001)
 
     def run_server(self):
 
