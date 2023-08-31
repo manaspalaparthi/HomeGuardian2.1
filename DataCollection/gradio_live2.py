@@ -25,6 +25,7 @@ class DataCollector:
         self.device_id = 0
         self.is_recording = False
         self.hostname = socket.gethostname()
+        self.ip_address = socket.gethostbyname(self.hostname)
         print("Hostname: " + self.hostname)
 
     def get_device_id(self):
@@ -63,16 +64,19 @@ class DataCollector:
 
         with gr.Blocks() as block:
 
-            gr.Markdown("## Home Guardian Video data collection")
+            gr.Markdown("# Home Guardian Video data collection")
 
             with gr.Column():
                 # show the device ID
 
                 device_id = gr.Markdown()
 
-                gr.Markdown(f"# Device IP: {self.hostname}")
+                gr.Markdown(f"## Host name: {self.hostname}")
+
+                gr.Markdown(f"## Device IP: {self.hostname}")
 
                 block.load(self.get_device_id,[],outputs=device_id)
+
 
                 iface.render()
 
