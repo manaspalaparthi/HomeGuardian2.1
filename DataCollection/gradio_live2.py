@@ -73,7 +73,7 @@ class DataCollector:
 
                 gr.Markdown(f"## Host name: {self.hostname}")
 
-                gr.Markdown(f"## Device IP: {self.hostname}")
+                gr.Markdown(f"## Device IP: {self.ip_address}")
 
                 block.load(self.get_device_id,[],outputs=device_id)
 
