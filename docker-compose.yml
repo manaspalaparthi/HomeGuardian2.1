@@ -1,0 +1,13 @@
+version: "1"
+services:
+  homeguardian:
+    container_name: homeguardian_data_collection
+    image: homeguardian
+    restart: always
+    environment:
+      DEVICE_ID: DRONE_CHAOS
+    command: >-
+      sh -c "python DataCollection/gradio_live2.py"
+    ports:
+      - '8000:8000'
+      - '7862:7862'

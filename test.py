@@ -1,6 +1,6 @@
 import cv2, socket, numpy, pickle
 s=socket.socket(socket.AF_INET , socket.SOCK_DGRAM)
-ip="127.0.0.1"
+ip="192.168.155.17"
 port=6666
 s.bind((ip,port))
 while True:

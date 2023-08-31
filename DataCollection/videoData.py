@@ -5,7 +5,7 @@ s.setsockopt(socket.SOL_SOCKET,socket.SO_SNDBUF,1000000)
 server_ip = "localhost"
 server_port = 6666
 
-cap = cv2.VideoCapture(-1)
+cap = cv2.VideoCapture(0)
 while True:
     ret,photo = cap.read()
     cv2.imshow('streaming',photo)

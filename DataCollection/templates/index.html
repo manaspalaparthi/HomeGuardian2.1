@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Streaming with Flask</title>
+</head>
+<body>
+    <h1>Video Streaming with Flask</h1>
+
+    <button id="startButton">Start</button>
+    <button id="stopButton">Stop</button>
+
+    <br>
+
+    <img id="videoStream" alt="Video Stream">
+
+    <script>
+        var videoElement = document.getElementById("videoStream");
+        var startButton = document.getElementById("startButton");
+        var stopButton = document.getElementById("stopButton");
+
+        startButton.addEventListener("click", function() {
+
+           fetch("http://127.0.0.1:443/start")
+                .then(response => response.text())
+                .then(data => console.log(data))  // Handle the response if needed
+
+            videoElement.src = "http://127.0.0.1:443/video_feed";
+
+        });
+
+        stopButton.addEventListener("click", function() {
+
+            fetch("http://127.0.0.1:443/stop")
+                .then(response => response.text())
+        });
+    </script>
+</body>
+</html>
