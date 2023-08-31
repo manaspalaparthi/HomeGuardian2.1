@@ -10,6 +10,7 @@ import datetime
 import base64
 import datetime
 from camera import WebcamStream
+import socket
 
 
 # Use a lock to prevent multiple threads accessing the camera simultaneously
@@ -23,9 +24,14 @@ class DataCollector:
         self.camera.start()
         self.device_id = 0
         self.is_recording = False
+        self.hostname = socket.gethostname()
+        print("Hostname: " + self.hostname)
+
+    def get_device_id(self):
+        return f"""<h1> Device ID: {self.device_id}</h1>"""
 
     def genrate_output_file_name(self):
-        return str(datetime.datetime.now()) + str(self.device_id) + '_HG.mp4'
+        return str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"))+"__HG__"+ str(self.device_id) + '.mp4'
     def start_recording(self, fps=30):
 
         # change the button color to red
@@ -61,7 +67,12 @@ class DataCollector:
 
             with gr.Column():
                 # show the device ID
-                gr.Markdown(f"### Device ID: {self.device_id}")
+
+                device_id = gr.Markdown()
+
+                gr.Markdown(f"# Device IP: {self.hostname}")
+
+                block.load(self.get_device_id,[],outputs=device_id)
 
                 iface.render()
 
@@ -77,13 +88,19 @@ class DataCollector:
 
                 self.stop.click(self.stop_recording, outputs=gr.outputs.HTML(label="Video Stream"))
 
-        return block.launch(enable_queue=True, server_port=8001)
+                refresh = gr.Button("Refresh")
+
+                refresh.click(self.get_device_id, [], outputs=device_id)
+
+        block.queue()
+        return block.launch(server_name="0.0.0.0", server_port=8001,share=True,)
 
     def run_server(self):
 
         gradio_thread = threading.Thread(target=self.gradio_live)
         gradio_thread.start()
         print("gradio live started")
+
 
 if __name__ == '__main__':
     video_stream = DataCollector()
@@ -104,6 +121,11 @@ if __name__ == '__main__':
     @router.get("/stop_recording")
     async def stop_recording():
         return {"message": video_stream.stop_recording()}
+
+    @router.get("/assign_device_id")
+    async def assign_device_id(device_id: int):
+        video_stream.device_id = device_id
+        return {"message": f"Device ID assigned: {video_stream.device_id}"}
 
     app.include_router(router)
     uvicorn.run(app, host="", port=8000)
