@@ -21,6 +21,12 @@ class WebcamStream(Thread):
 
         # reading a single frame from vcap stream for initializing
         self.grabbed, self.frame = self.vcap.read()
+
+        #frame size
+
+        self.frame_width  = self.frame.shape[1]
+        self.frame_height = self.frame.shape[0]
+
         if self.grabbed is False:
             print('[Exiting] No more frames to read')
             exit(0)
@@ -90,7 +96,7 @@ class WebcamStream(Thread):
         if self.is_recording:
             return "Recording is already in progress."
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        self.video_writer = cv2.VideoWriter(output_name, fourcc, 30, (1920,1080))
+        self.video_writer = cv2.VideoWriter(output_name, fourcc, 30, (self.frame_width, self.frame_height))
         self.is_recording = True
         return f"Recording started. Output file: {output_name}"
 
