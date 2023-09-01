@@ -66,7 +66,7 @@ class WebcamStream(Thread):
                 _, encoded_frame = cv2.imencode(".jpg", self.frame)
                 frame_base64 = base64.b64encode(encoded_frame).decode("utf-8")
                 # Create an HTML string to display the video frame
-                self.html_str = f'<img src="data:image/jpeg;base64,{frame_base64}" width="640" height="480">'
+                self.html_str = f'<img src="data:image/jpeg;base64,{frame_base64}" width={self.frame_width} height={self.frame_height}>'
 
                 if self.is_recording:
                     self.video_writer.write(self.frame)
