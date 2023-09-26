@@ -1,12 +1,10 @@
 import cv2
-from flask import Flask, Response, render_template
+from flask import Flask
 import threading
-from yolov8faceOnnx.test import YOLOv8_face
+from models.yolov8faceOnnx import YOLOv8_face
 import gradio as gr
-import datetime
 import base64
 import datetime
-from camera import WebcamStream
 
 app = Flask(__name__)
 # Use a lock to prevent multiple threads accessing the camera simultaneously
@@ -25,7 +23,7 @@ class VideoStream:
         self.cap.release()
     def start(self):
         self.cap = cv2.VideoCapture(0)
-        self.YOLOv8_face_detector = YOLOv8_face("../yolov8faceOnnx/weights/yolov8n-face.onnx", conf_thres=0.45, iou_thres=0.5)
+        self.YOLOv8_face_detector = YOLOv8_face("../models/yolov8faceOnnx/weights/yolov8n-face.onnx", conf_thres=0.45, iou_thres=0.5)
         self.gradio_run()
 
     def start_recording(self, fps=30):

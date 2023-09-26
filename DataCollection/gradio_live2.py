@@ -25,7 +25,7 @@ class DataCollector:
         self.device_id = 0
         self.is_recording = False
         self.hostname = socket.gethostname()
-        self.ip_address = socket.gethostbyname(self.hostname)
+        #self.ip_address = socket.gethostbyname(self.hostname)
         print("Hostname: " + self.hostname)
 
     def get_device_id(self):
@@ -73,7 +73,7 @@ class DataCollector:
 
                 gr.Markdown(f"## Host name: {self.hostname}")
 
-                gr.Markdown(f"## Device IP: {self.ip_address}")
+                #gr.Markdown(f"## Device IP: {self.ip_address}")
 
 
                 block.load(self.get_device_id,[],outputs=device_id)
