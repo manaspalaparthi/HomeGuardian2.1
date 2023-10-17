@@ -2,12 +2,19 @@ import cv2
 import time # time library
 from threading import Thread # library for multi-threading
 import base64
+import RPi.GPIO as GPIO
+import os
 
 # defining a helper class for implementing multi-threading
 class WebcamStream(Thread):
     # initialization method
     def __init__(self, stream_id=0):
         self.stream_id = stream_id  # default is 0 for main camera
+
+        self.pin_id = 6
+
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin_id, GPIO.OUT)
 
         self.html_str=""
 
@@ -108,6 +115,15 @@ class WebcamStream(Thread):
         self.video_writer.release()
         self.is_recording = False
         return "Recording stopped."
+
+    def Infrared_on(self):
+        GPIO.output(self.pin_id,GPIO.HIGH)
+
+
+    def Infrared_off(self):
+        GPIO.output(self.pin_id,GPIO.LOW)
+
+
 
 
 if __name__ == '__main__':

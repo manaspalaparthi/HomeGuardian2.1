@@ -13,6 +13,7 @@ from camera import WebcamStream
 import socket
 
 
+
 # Use a lock to prevent multiple threads accessing the camera simultaneously
 video_stream_lock = threading.Lock()
 
@@ -97,8 +98,22 @@ class DataCollector:
 
                 refresh.click(self.get_device_id, [], outputs=device_id)
 
+                # infrared mode
+
+                self.infrared =  gr.Radio(["On", "Off"], label ="Infrared Mode")
+                self.infrared.change(self.Toggle_infrared, self.infrared)
+
         block.queue()
         return block.launch(server_name="0.0.0.0", server_port=8001,share=True,)
+
+    
+    def Toggle_infrared(self,value):
+        
+        if value == "On":
+            self.camera.Infrared_on()
+        elif value == "Off":
+            self.camera.Infrared_off()
+
 
     def run_server(self):
 
