@@ -4,8 +4,11 @@ from ultralytics import YOLO
 import argparse
 from models.yolov8faceOnnx.test import YOLOv8_face
 import supervision as sv
+from models.defacecv.Deface import deface
+from models.defacecv.Deface.centerface import CenterFace
 
 class Evaluate:
+
     def __init__(self, model):
 
         #body detection model
@@ -26,7 +29,7 @@ class Evaluate:
         self.total_frames = 0
         self.frame_count = 0
 
-        self.output_path = "../data/missing_frames_yoloFace_30/2/"
+        self.output_path = "../data/missing_frames_deface/1/"
 
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
@@ -35,6 +38,7 @@ class Evaluate:
 
         path = video_path.split(".mp4")[0]
 
+        # file name
         file_name = video_path.split("/")[-1].split(".mp4")[0]
 
         if not os.path.exists(path):
@@ -59,22 +63,23 @@ class Evaluate:
             body_count, image = self.count_people(result, detections, frame.copy())
 
             # face count
-            boxes, scores, classids, kpts = YOLOv8_face_detector.detect(frame.copy())
-            YOLOv8_face_detector.draw_detections(image, boxes, scores,kpts)
 
-            # count boxes
-            face_count = len(boxes)
+            image, face_count=  deface.frame_detect(frame.copy(), self.model, threshold=0.3,  replacewith='blur',
+             mask_scale = 1.0,
+                ellipse = False,
+            draw_scores = False)
+
 
             if face_count != body_count:
 
                 if face_count > body_count:
-                    print(" Body count: {} Face count: {}".format( body_count, face_count))
+                    print(" Body count: {} Face count: {}".format(body_count, face_count))
                     self.miss_match_count += 1
-                    self.save_frame(image, self.frame_count, self.output_path + file_name, "1")
+                    self.save_frame(image, self.frame_count, self.output_path+file_name, "1")
                 else:
                     print(" Body count: {} Face count: {}".format(body_count, face_count))
                     self.miss_match_count += 1
-                    self.save_frame(image, self.frame_count, self.output_path + file_name, "2")
+                    self.save_frame(image, self.frame_count, self.output_path+file_name, "2")
 
 
             detections.frame = frame
@@ -82,7 +87,7 @@ class Evaluate:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        self.result(self.output_path + file_name)
+        self.result(file_name)
         cv2.destroyAllWindows()
         cap.release()
 
@@ -124,7 +129,7 @@ class Evaluate:
         print("Accuracy: {}".format(100 - ((self.miss_match_count/self.frame_count)*100)))
 
         # create a file to save the results
-        with open(path+".txt", "w") as f:
+        with open(self.output_path+path+".txt", "w") as f:
             f.write("Total frames: {} Miss matched frames: {}\n".format(self.frame_count, self.miss_match_count))
             f.write("percentage of miss matched frames: {}\n".format((self.miss_match_count/self.frame_count)*100))
             f.write("Accuracy: {}\n".format(100 - ((self.miss_match_count/self.frame_count)*100)))
@@ -135,11 +140,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=str, default='0', help="webcam")
     args = parser.parse_args()
-    YOLOv8_face_detector = YOLOv8_face('../models/yolov8faceOnnx/weights/yolov8n-face.onnx', conf_thres= 0.30, iou_thres=0.5)
-    # load evaluation class
-    evaluate = Evaluate(YOLOv8_face_detector)
 
-    folder_path = "../data/2/"
+    # load face detection model
+
+    centerface = CenterFace(in_shape=(640,480), backend="auto", override_execution_provider=None)
+
+    # load evaluation class
+    evaluate = Evaluate(centerface)
+
+    folder_path = "../data/1/"
 
     # list of all the videos in the folder
     videos = os.listdir(folder_path)

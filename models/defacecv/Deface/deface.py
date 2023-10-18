@@ -13,7 +13,7 @@ import imageio
 import imageio.plugins.ffmpeg
 import cv2
 
-from centerface import CenterFace
+from models.defacecv.Deface.centerface import CenterFace
 
 def scale_bb(x1, y1, x2, y2, mask_scale=1.0):
     s = mask_scale - 1.0
@@ -200,6 +200,26 @@ def image_detect(
     imageio.imsave(opath, frame)
     # print(f'Output saved to {opath}')
 
+def frame_detect(frame,
+        centerface,
+        threshold: float,
+        replacewith: str,
+        mask_scale: float,
+        ellipse: bool,
+        draw_scores: bool,
+        ):
+
+    print("frame res", frame.shape)
+
+    dets, _ = centerface(frame, threshold=threshold)
+    anonymize_frame(
+        dets, frame, mask_scale=mask_scale,
+        replacewith=replacewith, ellipse=ellipse, draw_scores=draw_scores, replaceimg=None)
+
+    # number of faces detected
+    num_faces = len(dets)
+    return frame, num_faces
+
 
 def get_file_type(path):
     if path.startswith('<video'):
@@ -302,7 +322,7 @@ def parse_cli_args():
     return args
 
 
-def run():
+def run(mode):
     args = parse_cli_args()
     ipaths = []
 
@@ -400,4 +420,5 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    mode = "frame"
+    run(mode)
