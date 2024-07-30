@@ -2,7 +2,7 @@ import cv2
 import time # time library
 from threading import Thread # library for multi-threading
 import base64
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import os
 from models.defacecv.Deface import deface
 from models.defacecv.Deface.centerface import CenterFace
@@ -15,8 +15,8 @@ class WebcamStream(Thread):
 
         self.pin_id = 6
 
-        # GPIO.setmode(GPIO.BCM)
-        # GPIO.setup(self.pin_id, GPIO.OUT)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin_id, GPIO.OUT)
 
         self.html_str=""
 
