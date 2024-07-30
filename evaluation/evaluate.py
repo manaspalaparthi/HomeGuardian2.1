@@ -26,7 +26,7 @@ class Evaluate:
         self.total_frames = 0
         self.frame_count = 0
 
-        self.output_path = "../data/missing_frames_yoloFace_30/2/"
+        self.output_path = "../data/missing_frames_yoloFace_night_30/3/"
 
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # load evaluation class
     evaluate = Evaluate(YOLOv8_face_detector)
 
-    folder_path = "../data/2/"
+    folder_path = "../data/nigthmode/3/"
 
     # list of all the videos in the folder
     videos = os.listdir(folder_path)

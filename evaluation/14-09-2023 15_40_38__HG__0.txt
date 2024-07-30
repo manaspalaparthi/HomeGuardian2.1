@@ -1,3 +1,0 @@
-Total frames: 2979 Miss matched frames: 2539
-percentage of miss matched frames: 85.22994293387043
-Accuracy: 14.770057066129567

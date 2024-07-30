@@ -10,34 +10,41 @@ def run(args):
     tracker = DeepSort(max_age= 30,polygon= True)
     winName = 'Deep learning face detection use OpenCV'
     YOLOv8_face_detector = YOLOv8_face(args.modelpath, conf_thres=args.confThreshold, iou_thres=args.nmsThreshold)
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(args.source)
+
+    ## save video same as input
+    out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (int(cam.get(3)),int(cam.get(4))))
+
+    ## video frame rate 30 fps
+    cam.set(cv2.CAP_PROP_FPS, 30)
+
+
     while True:
         ret, srcimg = cam.read()
         if not ret:
             break
         # Detect Objects
         boxes, scores, classids, kpts = YOLOv8_face_detector.detect(srcimg)
-
-        # if len(boxes) > 0:
-        #     tracks = tracker.update_tracks([boxes,scores,classids],frame=srcimg)  # bbs expected to be a list of detections, each in tuples of ( [left,top,w,h], confidence, detection_class )
-        #     for track in tracks:
-        #         if not track.is_confirmed():
-        #             continue
-        #         track_id = track.track_id
-        #         ltrb = track.to_ltrb()
-        #         print("tracker id ",track_id)
         # #apply blur to detections
-        dstimg = YOLOv8_face_detector.draw_detections(srcimg, boxes, scores, kpts)
+        dstimg = YOLOv8_face_detector.blur_detections(srcimg, boxes, scores, kpts)
+
+        ## rgb to bgr
+
+
+        ## save video
+        out.write(dstimg)
         cv2.imshow(winName, dstimg)
         cv2.namedWindow(winName, 0)
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(32) == ord('q'):
             break
     cam.release()
     cv2.destroyAllWindows()
+    out.release()
+    print("Done")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--source', type=str, default='0', help="webcam")
+    parser.add_argument('--source', type=str, default='video.mp4', help="webcam")
     parser.add_argument('--modelpath', type=str, default='weights/yolov8n-face.onnx',
                         help="onnx filepath")
     parser.add_argument('--confThreshold', default=0.45, type=float, help='class confidence')

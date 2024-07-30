@@ -6,8 +6,15 @@ __pycache__/
 # C extensions
 *.so
 data/
+NearFallVideos/
 
 data/
+models/data/
+models/models_2.0.0/
+models/runs/
+models/ultralytics/
+evaluation/
+models/*.pt
 
 # Distribution / packaging
 .Python

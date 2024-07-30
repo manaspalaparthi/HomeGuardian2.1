@@ -98,23 +98,22 @@ class DataCollector:
 
                 refresh.click(self.get_device_id, [], outputs=device_id)
 
-<<<<<<< Updated upstream
+
                 # infrared mode
 
                 self.infrared =  gr.Radio(["On", "Off"], label ="Infrared Mode")
-=======
+
 
                 # infrared toggle radio button
 
                 self.infrared = gr.Radio(["On", "Off"], label="Infrared Mode")
 
->>>>>>> Stashed changes
+
                 self.infrared.change(self.Toggle_infrared, self.infrared)
 
-        block.queue()
+
         return block.launch(server_name="0.0.0.0", server_port=8001,share=True,)
 
-<<<<<<< Updated upstream
     
     def Toggle_infrared(self,value):
         
@@ -123,12 +122,9 @@ class DataCollector:
         elif value == "Off":
             self.camera.Infrared_off()
 
-=======
-
     def Toggle_infrared(self, value):
 
         print("Infrared mode: ", value)
->>>>>>> Stashed changes
 
     def run_server(self):
 
