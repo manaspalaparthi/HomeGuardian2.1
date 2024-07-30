@@ -3,6 +3,7 @@ import numpy as np
 import os
 import subprocess
 from pyzbar.pyzbar import decode
+import tempfile
 
 
 def connect_to_wifi(ssid, password):
@@ -16,10 +17,13 @@ def connect_to_wifi(ssid, password):
             psk="{password}"
         }}
         """
-        config_path = "/etc/wpa_supplicant/wpa_supplicant.conf"
+        with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_config:
+            temp_config.write(config)
+            temp_config_path = temp_config.name
 
-        with open(config_path, "w") as file:
-            file.write(config)
+            # Move the temp file to the correct location with sudo and change permissions
+        move_command = ["sudo", "mv", temp_config_path, "/etc/wpa_supplicant/wpa_supplicant.conf"]
+        subprocess.run(move_command, check=True)
 
         # Restart the Wi-Fi interface to apply changes
         subprocess.run(["sudo", "wpa_cli", "-i", "wlan0", "reconfigure"], check=True)
