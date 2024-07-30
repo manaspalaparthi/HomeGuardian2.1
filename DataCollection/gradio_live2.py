@@ -1,6 +1,6 @@
 import cv2
 # import fast api
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, File, UploadFile, HTTPException , Security , APIRouter
 from fastapi.responses import RedirectResponse
 import uvicorn
 import threading
@@ -11,8 +11,8 @@ import base64
 import datetime
 from camera import WebcamStream
 import socket
-
-
+import os
+import requests
 
 # Use a lock to prevent multiple threads accessing the camera simultaneously
 video_stream_lock = threading.Lock()
@@ -35,16 +35,26 @@ class DataCollector:
     def genrate_output_file_name(self):
         return str(datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"))+"__HG__"+ str(self.device_id) + '.mp4'
     def start_recording(self, fps=30):
-
         # change the button color to red
         self.start.update("Recording in progress",variant="primary")
-        return {self.camera.record(self.genrate_output_file_name())}
+        self.file_name = self.genrate_output_file_name()
+        return {self.camera.record(self.file_name)}
 
     def stop_recording(self):
 
         self.start.update("Start Recording",)
 
-        return {self.camera.stop_record()}
+        self.camera.stop_record()
+
+        # read the video file and upload to the s3 bucket
+        with open(self.file_name, "rb") as video_file:
+            files = {"file": (self.file_name, video_file, "video/mp4")}
+
+            response = requests.post("http://localhost:8000/upload/", files=files)
+            if response.ok:
+                print(response.json())
+                return "Video uploaded successfully"
+        return "Video upload failed"
 
     def live(self):
 
@@ -112,11 +122,11 @@ class DataCollector:
                 self.infrared.change(self.Toggle_infrared, self.infrared)
 
 
-        return block.launch(server_name="0.0.0.0", server_port=8001,share=True,)
+        return block.launch(server_name="0.0.0.0", server_port=8001,share=True, enable_queue= True)
 
-    
+
     def Toggle_infrared(self,value):
-        
+
         if value == "On":
             self.camera.Infrared_on()
         elif value == "Off":
@@ -139,6 +149,26 @@ if __name__ == '__main__':
 
     app = FastAPI()
     router = APIRouter()
+    import boto3
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+
+    # AWS S3 configuration
+    aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+    aws_access_key = os.getenv("AWS_ACCESS_KEY")
+    aws_bucket_name = os.getenv("AWS_BUCKET_NAME")
+
+    print(aws_access_key_id, aws_access_key, aws_bucket_name)
+
+    s3_client = boto3.client(
+        's3',
+        region_name='ap-southeast-2',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_access_key
+    )
+
 
     @router.get("/")
     async def root():
@@ -157,6 +187,17 @@ if __name__ == '__main__':
     async def assign_device_id(device_id: int):
         video_stream.device_id = device_id
         return {"message": f"Device ID assigned: {video_stream.device_id}"}
+
+    @app.post("/upload/")
+    async def upload_video(file: UploadFile = File(...)):
+
+        file_content = await file.read()
+        filename = file.filename
+        s3_client.put_object(Bucket=aws_bucket_name, Key=filename, Body=file_content)
+        return {"message": "Video uploaded successfully",
+                "video_link": f"https://{aws_bucket_name}.s3.amazonaws.com/{filename}"}
+
+
 
     app.include_router(router)
     uvicorn.run(app, host="", port=8000)
