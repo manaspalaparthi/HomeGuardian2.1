@@ -5,6 +5,16 @@ __pycache__/
 .idea
 # C extensions
 *.so
+data/
+NearFallVideos/
+
+data/
+models/data/
+models/models_2.0.0/
+models/runs/
+models/ultralytics/
+evaluation/
+models/*.pt
 
 *.mp4
 

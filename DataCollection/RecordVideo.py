@@ -1,7 +1,6 @@
 import cv2
-from flask import Flask, Response, render_template
 import threading
-from yolov8faceOnnx.test import YOLOv8_face
+from models.yolov8faceOnnx import YOLOv8_face
 from flask_basicauth import BasicAuth
 from flask import Flask, Response, render_template
 import datetime
@@ -21,7 +20,7 @@ class VideoStream:
         self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         #self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         #self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        self.YOLOv8_face_detector = YOLOv8_face("../yolov8faceOnnx/weights/yolov8n-face.onnx", conf_thres=0.45, iou_thres=0.5)
+        self.YOLOv8_face_detector = YOLOv8_face("../models/yolov8faceOnnx/weights/yolov8n-face.onnx", conf_thres=0.45, iou_thres=0.5)
 
     def get_frame(self):
         with video_stream_lock:

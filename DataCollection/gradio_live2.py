@@ -26,7 +26,7 @@ class DataCollector:
         self.device_id = 0
         self.is_recording = False
         self.hostname = socket.gethostname()
-        self.ip_address = socket.gethostbyname(self.hostname)
+        #self.ip_address = socket.gethostbyname(self.hostname)
         print("Hostname: " + self.hostname)
 
     def get_device_id(self):
@@ -74,7 +74,7 @@ class DataCollector:
 
                 gr.Markdown(f"## Host name: {self.hostname}")
 
-                gr.Markdown(f"## Device IP: {self.ip_address}")
+                #gr.Markdown(f"## Device IP: {self.ip_address}")
 
 
                 block.load(self.get_device_id,[],outputs=device_id)
@@ -98,12 +98,20 @@ class DataCollector:
 
                 refresh.click(self.get_device_id, [], outputs=device_id)
 
+
                 # infrared mode
 
                 self.infrared =  gr.Radio(["On", "Off"], label ="Infrared Mode")
+
+
+                # infrared toggle radio button
+
+                self.infrared = gr.Radio(["On", "Off"], label="Infrared Mode")
+
+
                 self.infrared.change(self.Toggle_infrared, self.infrared)
 
-        block.queue()
+
         return block.launch(server_name="0.0.0.0", server_port=8001,share=True,)
 
     
@@ -114,6 +122,9 @@ class DataCollector:
         elif value == "Off":
             self.camera.Infrared_off()
 
+    def Toggle_infrared(self, value):
+
+        print("Infrared mode: ", value)
 
     def run_server(self):
 
