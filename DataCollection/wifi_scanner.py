@@ -1,49 +1,87 @@
-import numpy as np
-from pyzbar import pyzbar as bar
-
 import cv2
+import numpy as np
+import os
+import subprocess
+from pyzbar.pyzbar import decode
 
-class QRCodeScanner:
-    def __init__(self):
-        pass
 
-    def scan(self, image):
-        # Find barcodes and QR codes
-        decodedObjects = bar.decode(image)
+def connect_to_wifi(ssid, password):
+    # This function is for Unix-based systems like Linux or macOS.
+    # For Windows, you need to use netsh commands.
+    try:
+        # Create a Wi-Fi configuration file
+        config = f"""
+        network={{
+            ssid="{ssid}"
+            psk="{password}"
+        }}
+        """
+        config_path = "/etc/wpa_supplicant/wpa_supplicant.conf"
 
-        # Print results
-        for obj in decodedObjects:
-            print('Type : ', obj.type)
-            print('Data : ', obj.data, '\n')
+        with open(config_path, "w") as file:
+            file.write(config)
 
-        return decodedObjects
+        # Restart the Wi-Fi interface to apply changes
+        subprocess.run(["sudo", "wpa_cli", "-i", "wlan0", "reconfigure"], check=True)
+        print(f"Connected to {ssid}")
+    except Exception as e:
+        print(f"Failed to connect to {ssid}: {e}")
 
-    def read(self, image_path):
-        # Read image
-        image = cv2.imread(image_path)
 
-        # Display images
-        cv2.imshow("Image", image)
+def scan_qr_code():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-        decodedObjects = self.scan(image)
+        decoded_objects = decode(frame)
+        for obj in decoded_objects:
+            qr_data = obj.data.decode("utf-8")
+            print(f"Decoded QR Code: {qr_data}")
 
-        for decodedObject in decodedObjects:
-            points = decodedObject.polygon
+            if qr_data.startswith("WIFI:"):
+                wifi_info = parse_wifi_info(qr_data)
+                cap.release()
+                cv2.destroyAllWindows()
+                return wifi_info
 
-            # If the points do not form a quad, find convex hull
-            if len(points) > 4:
-                hull = cv2.convexHull(np.array([point for point in points], dtype=np.float32))
-                hull = list(map(tuple, np.squeeze(hull)))
-            else:
-                hull = points
+        cv2.imshow("QR Code Scanner", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-            # Number of points in the convex hull
-            n = len(hull)
+    cap.release()
+    cv2.destroyAllWindows()
+    return None
 
-            # Draw the convext hull
-            for j in range(0, n):
-                cv2.line(image, hull[j], hull[(j + 1) % n], (255, 0, 0), 3)
 
-        cv2.imshow("Result", image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+def parse_wifi_info(qr_data):
+    # Example QR data format: WIFI:S:<SSID>;T:<WPA|WEP|>;P:<PASSWORD>;;
+    wifi_info = {}
+    data = qr_data[5:]  # Remove 'WIFI:'
+    elements = data.split(';')
+    for element in elements:
+        if element.startswith('S:'):
+            wifi_info['ssid'] = element[2:]
+        elif element.startswith('T:'):
+            wifi_info['type'] = element[2:]
+        elif element.startswith('P:'):
+            wifi_info['password'] = element[2:]
+    return wifi_info
+
+
+def main():
+    wifi_info = scan_qr_code()
+    if wifi_info:
+        ssid = wifi_info.get('ssid')
+        password = wifi_info.get('password')
+        if ssid and password:
+            connect_to_wifi(ssid, password)
+        else:
+            print("Invalid Wi-Fi information found in QR code")
+    else:
+        print("No valid QR code found")
+
+
+if __name__ == "__main__":
+    main()
