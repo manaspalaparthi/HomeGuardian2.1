@@ -10,6 +10,7 @@ import datetime
 import base64
 import datetime
 from DataCollection.camera import WebcamStream
+#from DataCollection.VoiceCommands import *
 import socket
 import os
 import requests
@@ -130,11 +131,7 @@ class DataCollector:
         elif value == "Off":
             self.camera.Infrared_off()
 
-    def Toggle_infrared(self, value):
-
-        print("Infrared mode: ", value)
-
-    def run_server(self):
+    def run_gradio_server(self):
 
         gradio_thread = threading.Thread(target=self.gradio_live)
         gradio_thread.start()
@@ -143,7 +140,10 @@ class DataCollector:
 
 if __name__ == '__main__':
     video_stream = DataCollector()
-    video_stream.run_server()
+    video_stream.run_gradio_server()
+
+    # command_handler_thread = threading.Thread(target=start_speech_command_handler)
+    # command_handler_thread.start()
 
     app = FastAPI()
     router = APIRouter()
