@@ -12,21 +12,34 @@ def connect_to_wifi(ssid, password):
     try:
         # Create a Wi-Fi configuration file
         config = f"""
+        country=AU
+        ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+        update_config=1
         network={{
             ssid="{ssid}"
             psk="{password}"
         }}
         """
-        with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_config:
-            temp_config.write(config)
-            temp_config_path = temp_config.name
+        
+        # restart netwroking service
+        cmd=  f"sudo nmcli d wifi connect {ssid} password {password} "
+        
+        if os.system(cmd) !=0:
+            with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_config:
+                temp_config.write(config)
+                temp_config_path = temp_config.name
 
             # Move the temp file to the correct location with sudo and change permissions
-        move_command = ["sudo", "mv", temp_config_path, "/etc/wpa_supplicant/wpa_supplicant.conf"]
-        subprocess.run(move_command, check=True)
+            move_command = ["sudo", "mv", temp_config_path, "/etc/wpa_supplicant/wpa_supplicant.conf"]
+            subprocess.run(move_command, check=True)
 
-        # Restart the Wi-Fi interface to apply changes
-        subprocess.run(["sudo", "wpa_cli", "-i", "wlan0", "reconfigure"], check=True)
+            # restart
+            os.system("systemctl reboot -i")
+
+        # restart netwroking service
+        restart =["sudo","systemctl","restart","networking"]
+        subprocess.run(restart,check = True)
+
         print(f"Connected to {ssid}")
     except Exception as e:
         print(f"Failed to connect to {ssid}: {e}")
@@ -50,7 +63,7 @@ def scan_qr_code():
                 cv2.destroyAllWindows()
                 return wifi_info
 
-        cv2.imshow("QR Code Scanner", frame)
+        #cv2.imshow("QR Code Scanner", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
