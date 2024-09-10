@@ -8,8 +8,8 @@ import os
 
 logger = logging.getLogger(__name__)
 
-fan_pin = 35
-pwm_chip = 4
+fan_pin = 34
+pwm_chip = 0
 pwm_channel = 1
 period = 10000000  # Period in nanoseconds (10ms)
 
@@ -87,14 +87,6 @@ class Fan:
 
 if __name__ == "__main__":
     fan = Fan()
+    fan.setFanPwm(100)
 
-    # Handle exits properly
-    signal.signal(signal.SIGTERM, fan.handle_exit)
-    signal.signal(signal.SIGINT, fan.handle_exit)
-
-    while True:
-        try:
-            time.sleep(1)
-
-        except SystemExit:
-            break
+   
