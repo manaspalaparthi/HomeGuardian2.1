@@ -14,9 +14,12 @@ class WebcamStream(Thread):
         self.stream_id = stream_id  # default is 0 for main camera
 
         self.pin_id = 6
+        self.camera_pin_id = 35
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin_id, GPIO.OUT)
+        GPIO.setup(self.camera_pin_id, GPIO.OUT)
+
 
         self.html_str=""
 
@@ -48,10 +51,12 @@ class WebcamStream(Thread):
         self.is_recording = False
         self.blur = True
 
-
         ## face blur model
 
         self.centerface = CenterFace(in_shape=(640, 480), backend="auto", override_execution_provider=None)
+
+        # turn on the fan
+        self.fan_on()
 
     def stop_thread(self):
         self.stopped = True
@@ -138,9 +143,20 @@ class WebcamStream(Thread):
 
     def Infrared_off(self):
         GPIO.output(self.pin_id,GPIO.LOW)
+    
+    def fan_on(self):
+
+        GPIO.output(self.camera_pin_id,GPIO.HIGH)
+    
+    def fan_off(self):
+        GPIO.output(self.camera_pin_id,GPIO.LOW)
+
 
 
 
 
 if __name__ == '__main__':
-    WebcamStream().start()
+   HGdevice = WebcamStream()
+
+   HG.start()
+
