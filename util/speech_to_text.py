@@ -9,7 +9,7 @@ from vosk import Model, KaldiRecognizer
 # unzip vosk-model-small-en-us-0.15.zip
 
 # Load Vosk model
-model = Model("vosk-model-small-en-us-0.15")  # Path to the model
+model = Model("models/vosk-model-small-en-us-0.15")  # Path to the model
 
 
 # Function to continuously record audio and convert speech to text
