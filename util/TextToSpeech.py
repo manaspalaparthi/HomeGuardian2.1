@@ -56,5 +56,4 @@ def play_audio(file_name):
         pygame.time.Clock().tick(10)
 
 
-
 text_to_speech("Home guardian is turned on, please scan a QR code to connect to wifi")
