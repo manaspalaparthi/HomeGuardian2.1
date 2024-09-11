@@ -9,11 +9,13 @@ import gradio as gr
 import datetime
 import base64
 import datetime
+from util.TextToSpeech import text_to_speech, play_audio
 from DataCollection.camera import WebcamStream
 #from DataCollection.VoiceCommands import *
 import socket
 import os
 import requests
+
 
 # Use a lock to prevent multiple threads accessing the camera simultaneously
 video_stream_lock = threading.Lock()
@@ -37,6 +39,7 @@ class DataCollector:
         # change the button color to red
         self.start.update("Recording in progress",variant="primary")
         self.file_name = self.genrate_output_file_name()
+        text_to_speech(f"Recording started!")
         return {self.camera.record(self.file_name)}
 
     def stop_recording(self):
@@ -48,7 +51,7 @@ class DataCollector:
         # read the video file and upload to the s3 bucket
         with open(self.file_name, "rb") as video_file:
             files = {"file": (self.file_name, video_file, "video/mp4")}
-
+            text_to_speech("recording stopped")
             response = requests.post("http://localhost:8000/upload/", files=files)
             if response.ok:
                 print(response.json())
@@ -85,9 +88,7 @@ class DataCollector:
 
                 #gr.Markdown(f"## Device IP: {self.ip_address}")
 
-
                 block.load(self.get_device_id,[],outputs=device_id)
-
 
                 iface.render()
 
@@ -107,16 +108,13 @@ class DataCollector:
 
                 refresh.click(self.get_device_id, [], outputs=device_id)
 
-
                 # infrared mode
 
                 self.infrared =  gr.Radio(["On", "Off"], label ="Infrared Mode")
 
-
                 # infrared toggle radio button
 
                 self.infrared = gr.Radio(["On", "Off"], label="Infrared Mode")
-
 
                 self.infrared.change(self.Toggle_infrared, self.infrared)
 
@@ -130,6 +128,8 @@ class DataCollector:
             self.camera.Infrared_on()
         elif value == "Off":
             self.camera.Infrared_off()
+
+        text_to_speech(f"Infrared mode {value}")
 
     def run_gradio_server(self):
 
@@ -192,6 +192,8 @@ if __name__ == '__main__':
         file_content = await file.read()
         filename = file.filename
         s3_client.put_object(Bucket=aws_bucket_name, Key=filename, Body=file_content)
+
+        text_to_speech("Video uploaded successfully")
         return {"message": "Video uploaded successfully",
                 "video_link": f"https://{aws_bucket_name}.s3.amazonaws.com/{filename}"}
 
