@@ -98,7 +98,6 @@ def main():
         ssid = wifi_info.get('ssid')
         password = wifi_info.get('password')
         if ssid and password:
-            text_to_speech(f"Connecting to {ssid}")
             connect_to_wifi(ssid, password)
         else:
             print("Invalid Wi-Fi information found in QR code")
