@@ -4,7 +4,8 @@ import os
 import subprocess
 from pyzbar.pyzbar import decode
 import tempfile
-
+from util.TextToSpeech import text_to_speech
+import socket
 
 def connect_to_wifi(ssid, password):
     # This function is for Unix-based systems like Linux or macOS.
@@ -20,7 +21,6 @@ def connect_to_wifi(ssid, password):
             psk="{password}"
         }}
         """
-        
         # restart netwroking service
         cmd=  f"sudo nmcli d wifi connect {ssid} password {password} "
         
@@ -41,8 +41,13 @@ def connect_to_wifi(ssid, password):
         subprocess.run(restart,check = True)
 
         print(f"Connected to {ssid}")
+
+        # Get the IP address
+        ip_address = socket.gethostbyname(socket.gethostname())
+        text_to_speech(f"Connected to {ssid}. IP address is {ip_address}")
+
     except Exception as e:
-        print(f"Failed to connect to {ssid}: {e}")
+        text_to_speech(f"Failed to connect to {ssid}")
 
 
 def scan_qr_code():
@@ -93,6 +98,7 @@ def main():
         ssid = wifi_info.get('ssid')
         password = wifi_info.get('password')
         if ssid and password:
+            text_to_speech(f"Connecting to {ssid}")
             connect_to_wifi(ssid, password)
         else:
             print("Invalid Wi-Fi information found in QR code")
