@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 fan_pin = 34
 pwm_chip = 0
-pwm_channel = 1
+pwm_channel = 2
 period = 10000000  # Period in nanoseconds (10ms)
 
 
