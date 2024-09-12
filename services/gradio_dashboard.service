@@ -1,0 +1,16 @@
+[Unit]
+Description= runs the gradio_live2.py script
+After=WifiConnect.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "source /home/homeguardiandev/miniconda3/bin/activate homeguardian && python gradio_live2.py"
+WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=homeguardiandev
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
