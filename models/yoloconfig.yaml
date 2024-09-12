@@ -1,0 +1,7 @@
+
+train: /Users/manas/Documents/GitHub/HomeGuardian2.1/models/data/AllData/train/  # train images (relative to 'path') 128 images
+val: /Users/manas/Documents/GitHub/HomeGuardian2.1/models/data/AllData/valid/ # val images (relative to 'path') 128 images
+test: # test images (optional)
+
+nc: 7
+names: ['bending', 'fall', 'seizure', 'sit', 'sleep', 'stand', 'walk']

@@ -4,6 +4,8 @@ from threading import Thread # library for multi-threading
 import base64
 import RPi.GPIO as GPIO
 import os
+from models.defacecv.Deface import deface
+from models.defacecv.Deface.centerface import CenterFace
 
 # defining a helper class for implementing multi-threading
 class WebcamStream(Thread):
@@ -12,9 +14,12 @@ class WebcamStream(Thread):
         self.stream_id = stream_id  # default is 0 for main camera
 
         self.pin_id = 6
+        self.camera_pin_id = 35
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin_id, GPIO.OUT)
+        GPIO.setup(self.camera_pin_id, GPIO.OUT)
+
 
         self.html_str=""
 
@@ -44,6 +49,14 @@ class WebcamStream(Thread):
         self.t = Thread(target=self.update, args=())
         self.t.daemon = True  # daemon threads run in background
         self.is_recording = False
+        self.blur = True
+
+        ## face blur model
+
+        self.centerface = CenterFace(in_shape=(640, 480), backend="auto", override_execution_provider=None)
+
+        # turn on the fan
+        self.fan_on()
 
     def stop_thread(self):
         self.stopped = True
@@ -63,12 +76,19 @@ class WebcamStream(Thread):
                 if self.stopped is True:
                     break
 
-                cv2.waitKey(20)
+                cv2.waitKey(30)
 
                 if self.paused is True:
                     cv2.waitKey(-1)
 
                 self.grabbed, self.frame = self.vcap.read()
+
+                if self.blur:
+                    self.frame, face_count = deface.frame_detect(self.frame.copy(), self.centerface, threshold=0.3,
+                                                            replacewith='blur',
+                                                            mask_scale=1.0,
+                                                            ellipse=False,
+                                                            draw_scores=False)
 
                 _, encoded_frame = cv2.imencode(".jpg", self.frame)
                 frame_base64 = base64.b64encode(encoded_frame).decode("utf-8")
@@ -76,6 +96,7 @@ class WebcamStream(Thread):
                 self.html_str = f'<img src="data:image/jpeg;base64,{frame_base64}" width={self.frame_width} height={self.frame_height}>'
 
                 if self.is_recording:
+
                     self.video_writer.write(self.frame)
 
                 if self.grabbed is False:
@@ -122,9 +143,20 @@ class WebcamStream(Thread):
 
     def Infrared_off(self):
         GPIO.output(self.pin_id,GPIO.LOW)
+    
+    def fan_on(self):
+
+        GPIO.output(self.camera_pin_id,GPIO.HIGH)
+    
+    def fan_off(self):
+        GPIO.output(self.camera_pin_id,GPIO.LOW)
+
 
 
 
 
 if __name__ == '__main__':
-    WebcamStream().start()
+   HGdevice = WebcamStream()
+
+   HG.start()
+
