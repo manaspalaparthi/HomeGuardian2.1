@@ -1,6 +1,6 @@
 [Unit]
 Description= HomeGuardian Wifi Scanner
-After=multi-user.target
+After=fancontrol.service
 
 [Service]
 Type=simple
@@ -8,9 +8,9 @@ ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate hom
 WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
 StandardOutput=inherit
 StandardError=inherit
-Restart=always
 User=homeguardiandev
 Environment=PYTHONUNBUFFERED=1
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
