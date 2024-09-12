@@ -5,7 +5,7 @@ SSID="cyberlab24"
 PASSWORD="IoTNetwork1234"
 
 # Edit the wpa_supplicant.conf file to configure WiFi for Australia (AU)
-cat <<EOL > /etc/wpa_supplicant/wpa_supplicant.conf
+sudo cat <<EOL > /etc/wpa_supplicant/wpa_supplicant.conf
 country=AU
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
