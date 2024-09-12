@@ -4,7 +4,7 @@ After=WifiConnect.service
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "source /home/homeguardiandev/miniconda3/bin/activate homeguardian && python gradio_live2.py"
+ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && python gradio_live2.py"
 WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
 StandardOutput=inherit
 StandardError=inherit
