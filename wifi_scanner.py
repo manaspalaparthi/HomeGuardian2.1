@@ -34,7 +34,7 @@ def connect_to_wifi(ssid, password):
             subprocess.run(move_command, check=True)
 
             # restart
-            os.system("systemctl reboot -i")
+            # os.system("systemctl reboot -i")
 
         # restart netwroking service
         restart =["sudo","systemctl","restart","networking"]

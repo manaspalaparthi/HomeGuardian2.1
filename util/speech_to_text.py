@@ -34,6 +34,7 @@ def record_and_convert_to_text():
             result = json.loads(recognizer.Result())
             print(f"You said: {result['text']}")  # Extract the text from result
 
+if __name__ == "__main__":
 
-# Start recording and converting to text
-record_and_convert_to_text()
+    # Start recording and converting to text
+    record_and_convert_to_text()
