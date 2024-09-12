@@ -111,8 +111,12 @@ if __name__ == "__main__":
     import time
 
     thermal = RPI4_THERMAL()
+
+    thermal.set_fan_speed(0.3)
+    
     while True:
         thermal.check_temp()
         print(thermal.cur_frequencies)
-        time.sleep(1)
+        time.sleep(10)
+      
 
