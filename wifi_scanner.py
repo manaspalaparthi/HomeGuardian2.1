@@ -95,17 +95,30 @@ def parse_wifi_info(qr_data):
 
 
 def main():
-    wifi_info = scan_qr_code()
-    if wifi_info:
-        ssid = wifi_info.get('ssid')
-        password = wifi_info.get('password')
-        if ssid and password:
-            connect_to_wifi(ssid, password)
-        else:
-            print("Invalid Wi-Fi information found in QR code")
+
+    if check_internt_connection():
+        text_to_speech("Home guardian is turned on and connected to wifi")
     else:
-        print("No valid QR code found")
+        #text_to_speech("Home guardian is turned on, please scan a QR code to connect to wifi")
+        wifi_info = scan_qr_code()
+        if wifi_info:
+            ssid = wifi_info.get('ssid')
+            password = wifi_info.get('password')
+            if ssid and password:
+                connect_to_wifi(ssid, password)
+            else:
+                print("Invalid Wi-Fi information found in QR code")
+        else:
+            print("No valid QR code found")
 
-
+def check_internt_connection():
+    try:
+        # connect to the host -- tells us if the host is actually
+        # reachable
+        socket.create_connection(("www.google.com", 80))
+        return True
+    except OSError:
+        pass
+    return False
 if __name__ == "__main__":
     main()
