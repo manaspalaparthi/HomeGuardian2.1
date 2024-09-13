@@ -1,5 +1,6 @@
 [Unit]
 Description= HomeGuardian Wifi Scanner
+After=HG_speaker.service
 
 [Service]
 Type=simple
