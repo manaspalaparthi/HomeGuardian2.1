@@ -3,7 +3,7 @@ Description= HomeGuardian Wifi Scanner
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && python util/wifi_scanner.py"
+ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && python wifi_scanner.py"
 WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
 StandardOutput=inherit
 StandardError=inherit
