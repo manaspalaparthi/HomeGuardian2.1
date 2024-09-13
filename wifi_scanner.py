@@ -6,6 +6,7 @@ from pyzbar.pyzbar import decode
 import tempfile
 from util.TextToSpeech import text_to_speech
 import socket
+import time
 
 def connect_to_wifi(ssid, password):
     # This function is for Unix-based systems like Linux or macOS.
@@ -22,7 +23,6 @@ def connect_to_wifi(ssid, password):
         }}
         """
         # start network manager
-
         os.system("sudo systemctl start NetworkManager")
 
         # restart netwroking service
@@ -41,7 +41,11 @@ def connect_to_wifi(ssid, password):
             restart =["sudo","systemctl","restart","networking"]
             subprocess.run(restart,check = True)
 
-        print(f"Connected to {ssid}")
+        while True:
+            time.sleep(5)
+            if check_internt_connection():
+                print(f"Connected to {ssid}")
+                break
 
         # Get the IP address
         ip_address = socket.gethostbyname(socket.gethostname())
