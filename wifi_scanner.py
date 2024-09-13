@@ -21,10 +21,14 @@ def connect_to_wifi(ssid, password):
             psk="{password}"
         }}
         """
+        # start network manager
+
+        os.system("sudo systemctl start NetworkManager")
+
         # restart netwroking service
-        cmd=  f"sudo nmcli d wifi connect {ssid} password {password} "
-        
-        if os.system(cmd) !=0:
+        cmd=  f"sudo nmcli dev wifi connect '{ssid}' password '{password}'"
+
+        if subprocess.run(cmd,shell=True).returncode != 0:
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_config:
                 temp_config.write(config)
                 temp_config_path = temp_config.name
@@ -33,17 +37,15 @@ def connect_to_wifi(ssid, password):
             move_command = ["sudo", "mv", temp_config_path, "/etc/wpa_supplicant/wpa_supplicant.conf"]
             subprocess.run(move_command, check=True)
 
-            # restart
-            # os.system("systemctl reboot -i")
-
-        # restart netwroking service
-        restart =["sudo","systemctl","restart","networking"]
-        subprocess.run(restart,check = True)
+            # restart netwroking service
+            restart =["sudo","systemctl","restart","networking"]
+            subprocess.run(restart,check = True)
 
         print(f"Connected to {ssid}")
 
         # Get the IP address
         ip_address = socket.gethostbyname(socket.gethostname())
+        print(f"Ip address {ip_address}")
         text_to_speech(f"Connected to {ssid}. IP address is {ip_address}")
 
     except Exception as e:
