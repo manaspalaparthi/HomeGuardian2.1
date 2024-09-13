@@ -1,0 +1,15 @@
+[Unit]
+Description=Configure USB Audio on Boot
+After=multi-user.target
+
+[Service]
+ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && sudo python util/audio_configuration.py"
+WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+User=homeguardiandev
+Group=homeguardiandev
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,5 @@
 [Unit]
 Description= HomeGuardian Wifi Scanner
-After=fancontrol.service
 
 [Service]
 Type=simple
