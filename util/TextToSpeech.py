@@ -25,40 +25,52 @@ from gtts import gTTS  # Google Text-to-Speech
 # # Cleanup the mp3 file
 # #os.remove("wav/output.mp3")
 
-# def text_to_speech(txt):
-#     tts = gTTS(txt)
-#     tts.save("temp.mp3")
-#     # Initialize pygame mixer
-#     pygame.mixer.init()
+def text_to_speech(txt, save=False, filename="output.mp3"):
+    try:
+        # Create TTS object
+        tts = gTTS(txt)
+
+        # Save or create temporary file
+        if save:
+            tts.save(filename)
+        else:
+            filename = "temp.mp3"
+            tts.save(filename)
+
+        # Initialize pygame mixer
+        pygame.mixer.init()
+
+        # Load and play the mp3 file
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+
+        # Wait for the playback to finish
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(1)
+
+        # Cleanup the temporary mp3 file if save=False
+        if not save:
+            if os.path.exists(filename):
+                os.remove(filename)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+# import pyttsx3
+
 #
-#     # Load and play the mp3 file
-#     pygame.mixer.music.load("temp.mp3")
-#     pygame.mixer.music.play()
+# def text_to_speech(text):
+#     # Initialize the text-to-speech engine
+#     engine = pyttsx3.init()
 #
-#     # Wait for the playback to finish
-#     while pygame.mixer.music.get_busy():
-#         pygame.time.Clock().tick(1)
+#     # Set properties (optional)
+#     engine.setProperty('rate', 150)  # Speed of speech
+#     engine.setProperty('volume', 0.9)  # Volume (0.0 to 1.0)
 #
-#     # Cleanup the mp3 file
-#     os.remove("temp.mp3")
-
-
-import pyttsx3
-
-
-def text_to_speech(text):
-    # Initialize the text-to-speech engine
-    engine = pyttsx3.init()
-
-    # Set properties (optional)
-    engine.setProperty('rate', 150)  # Speed of speech
-    engine.setProperty('volume', 0.9)  # Volume (0.0 to 1.0)
-
-    # Perform text-to-speech
-    engine.say(text)
-    engine.runAndWait()
-
-
+#     # Perform text-to-speech
+#     engine.say(text)
+#     engine.runAndWait()
 
 # Function to play audio using pygame.mixer
 def play_audio(file_name):
@@ -74,4 +86,4 @@ def play_audio(file_name):
 
 if __name__ == "__main__":
 
-    text_to_speech("Home guardian is turned on, please scan a QR code to connect to wifi")
+    text_to_speech("video failed to upload, please restart the device and try again", save = True, filename = "../wav/failed.mp3")
