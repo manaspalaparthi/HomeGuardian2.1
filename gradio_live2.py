@@ -124,7 +124,7 @@ class DataCollector:
                 self.infrared.change(self.Toggle_infrared, self.infrared)
 
 
-        return block.launch(server_name="0.0.0.0", server_port=8001,share=True, enable_queue= True)
+        return block.launch(server_name="0.0.0.0", server_port=8001,enable_queue= True)
 
 
     def Toggle_infrared(self,value):
