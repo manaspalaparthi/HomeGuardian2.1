@@ -209,8 +209,6 @@ def frame_detect(frame,
         draw_scores: bool,
         ):
 
-    print("frame res", frame.shape)
-
     dets, _ = centerface(frame, threshold=threshold)
     anonymize_frame(
         dets, frame, mask_scale=mask_scale,

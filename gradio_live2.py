@@ -38,11 +38,16 @@ class DataCollector:
     def start_recording(self, fps=30):
         # change the button color to red
         self.start.update("Recording in progress",variant="primary")
-        self.file_name = self.genrate_output_file_name()
-        text_to_speech(f"Recording started!")
-        return {self.camera.record(self.file_name)}
+        if not self.camera.is_recording:
+            self.file_name = self.genrate_output_file_name()
+            text_to_speech(f"Recording started!")
+            return {self.camera.record(self.file_name)}
+        return "Recording is already in progress"
 
     def stop_recording(self):
+
+        if not self.camera.is_recording:
+            return "No recording in progress"
 
         self.start.update("Start Recording",)
 
