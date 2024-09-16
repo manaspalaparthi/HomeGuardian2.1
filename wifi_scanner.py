@@ -24,11 +24,25 @@ def connect_to_wifi(ssid, password):
         """
         # start network manager
         os.system("sudo systemctl start NetworkManager")
+        # Retry logic for nmcli command
+        max_retries = 3
+        retry_interval = 5  # Time to wait between retries in seconds
 
-        # restart netwroking service
-        cmd=  f"sudo nmcli dev wifi connect '{ssid}' password '{password}'"
+        for attempt in range(max_retries):
+            cmd = f"sudo nmcli dev wifi connect '{ssid}' password '{password}'"
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            if result.returncode == 0:
+                print("Wi-Fi connected successfully.")
+                break
+            else:
+                print(f"nmcli command failed: {result.stderr}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {retry_interval} seconds...")
+                    time.sleep(retry_interval)
+        else:
+            print("All attempts to connect to Wi-Fi failed. Proceeding with fallback method.")
 
-        if subprocess.run(cmd,shell=True).returncode != 0:
+            # Handle the failure case
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_config:
                 temp_config.write(config)
                 temp_config_path = temp_config.name
@@ -37,11 +51,12 @@ def connect_to_wifi(ssid, password):
             move_command = ["sudo", "mv", temp_config_path, "/etc/wpa_supplicant/wpa_supplicant.conf"]
             subprocess.run(move_command, check=True)
 
-            # restart netwroking service
-            restart =["sudo","systemctl","restart","networking"]
-            subprocess.run(restart,check = True)
+            # Restart networking service
+            restart = ["sudo", "systemctl", "restart", "networking"]
+            subprocess.run(restart, check=True)
 
-        while True:
+        # Check if the device is connected to the Wi-Fi network by pinging Google's DNS server try 3 times
+        for attempt in range(3):
             time.sleep(5)
             if check_internt_connection():
                 print(f"Connected to {ssid}")
