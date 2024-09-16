@@ -1,5 +1,5 @@
 import os
-
+import time
 
 def configure_usb_audio(card_number):
     # Path to the ALSA configuration file
@@ -39,3 +39,5 @@ ctl.!default {{
 if __name__ == "__main__":
     # Set the audio card number (replace this if the card number changes)
     configure_usb_audio(4)
+    time.sleep(5)
+

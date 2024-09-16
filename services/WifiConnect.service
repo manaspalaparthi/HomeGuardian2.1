@@ -1,16 +1,17 @@
 [Unit]
 Description= HomeGuardian Wifi Scanner
-After=HG_speaker.service
 
 [Service]
 Type=simple
+ExecStartPre=/bin/sleep 10
 ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && python wifi_scanner.py"
 WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
 StandardOutput=inherit
 StandardError=inherit
 User=homeguardiandev
-Environment=PYTHONUNBUFFERED=1
+Environment=XDG_RUNTIME_DIR=/run/user/1000
 RemainAfterExit=yes
+
 
 [Install]
 WantedBy=multi-user.target

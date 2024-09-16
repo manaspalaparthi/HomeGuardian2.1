@@ -4,7 +4,7 @@ import os
 import subprocess
 from pyzbar.pyzbar import decode
 import tempfile
-from util.TextToSpeech import text_to_speech
+from util.TextToSpeech import text_to_speech , play_audio
 import socket
 import time
 
@@ -99,11 +99,11 @@ def parse_wifi_info(qr_data):
 
 
 def main():
-
+    time.sleep(10)
     if check_internt_connection():
         text_to_speech("Home guardian is turned on and connected to wifi")
     else:
-        #text_to_speech("Home guardian is turned on, please scan a QR code to connect to wifi")
+        play_audio("wav/scanQR.mp3")
         wifi_info = scan_qr_code()
         if wifi_info:
             ssid = wifi_info.get('ssid')
