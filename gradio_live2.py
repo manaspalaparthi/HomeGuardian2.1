@@ -9,7 +9,7 @@ import gradio as gr
 import datetime
 import base64
 import datetime
-from util.TextToSpeech import text_to_speech, play_audio
+from util.TextToSpeech import play_audio
 from DataCollection.camera import WebcamStream
 #from DataCollection.VoiceCommands import *
 import socket
@@ -42,7 +42,7 @@ class DataCollector:
         self.start.update("Recording in progress",variant="primary")
         if not self.camera.is_recording:
             self.file_name = self.genrate_output_file_name()
-            text_to_speech(f"Recording started!")
+            play_audio("wav/Recording_started.mp3")
             return {self.camera.record(self.file_name)}
         return "Recording is already in progress"
 
@@ -58,7 +58,7 @@ class DataCollector:
         # read the video file and upload to the s3 bucket
         with open(self.file_name, "rb") as video_file:
             files = {"file": (self.file_name, video_file, "video/mp4")}
-            text_to_speech("recording stopped")
+            play_audio("wav/Recording_stopped.mp3")
             response = requests.post("http://localhost:8000/upload/", files=files)
             if response.ok:
                 print(response.json())
@@ -136,7 +136,7 @@ class DataCollector:
         elif value == "Off":
             self.camera.Infrared_off()
 
-        text_to_speech(f"Infrared mode {value}")
+        play_audio("wav/Infrared_on.mp3")
 
     def run_gradio_server(self):
 
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     if not check_internt_connection():
         WIFIconnect()
     else:
-        text_to_speech("Home guardian is turned on and connected to wifi")
+        play_audio("wav/online.mp3")
 
     video_stream = DataCollector()
     video_stream.run_gradio_server()
@@ -203,7 +203,7 @@ if __name__ == '__main__':
         filename = file.filename
         s3_client.put_object(Bucket=aws_bucket_name, Key=filename, Body=file_content)
 
-        text_to_speech("Video uploaded successfully")
+        play_audio("wav/uploaded.mp3")
         return {"message": "Video uploaded successfully",
                 "video_link": f"https://{aws_bucket_name}.s3.amazonaws.com/{filename}"}
 

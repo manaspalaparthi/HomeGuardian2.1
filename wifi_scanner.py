@@ -116,7 +116,7 @@ def parse_wifi_info(qr_data):
 def WIFIconnect():
     time.sleep(10)
     if check_internt_connection():
-        print("Connected to Wi-Fi")
+        play_audio("wav/online.mp3")
         # text_to_speech("Home guardian is turned on and connected to wifi")
     else:
         play_audio("wav/scanQR.mp3")
