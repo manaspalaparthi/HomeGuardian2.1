@@ -25,22 +25,39 @@ from gtts import gTTS  # Google Text-to-Speech
 # # Cleanup the mp3 file
 # #os.remove("wav/output.mp3")
 
-def text_to_speech(txt):
-    tts = gTTS(txt)
-    tts.save("temp.mp3")
-    # Initialize pygame mixer
-    pygame.mixer.init()
+# def text_to_speech(txt):
+#     tts = gTTS(txt)
+#     tts.save("temp.mp3")
+#     # Initialize pygame mixer
+#     pygame.mixer.init()
+#
+#     # Load and play the mp3 file
+#     pygame.mixer.music.load("temp.mp3")
+#     pygame.mixer.music.play()
+#
+#     # Wait for the playback to finish
+#     while pygame.mixer.music.get_busy():
+#         pygame.time.Clock().tick(1)
+#
+#     # Cleanup the mp3 file
+#     os.remove("temp.mp3")
 
-    # Load and play the mp3 file
-    pygame.mixer.music.load("temp.mp3")
-    pygame.mixer.music.play()
 
-    # Wait for the playback to finish
-    while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(1)
+import pyttsx3
 
-    # Cleanup the mp3 file
-    os.remove("temp.mp3")
+
+def text_to_speech(text):
+    # Initialize the text-to-speech engine
+    engine = pyttsx3.init()
+
+    # Set properties (optional)
+    engine.setProperty('rate', 150)  # Speed of speech
+    engine.setProperty('volume', 0.9)  # Volume (0.0 to 1.0)
+
+    # Perform text-to-speech
+    engine.say(text)
+    engine.runAndWait()
+
 
 
 # Function to play audio using pygame.mixer
