@@ -113,10 +113,11 @@ def parse_wifi_info(qr_data):
     return wifi_info
 
 
-def main():
+def WIFIconnect():
     time.sleep(10)
     if check_internt_connection():
-        text_to_speech("Home guardian is turned on and connected to wifi")
+        print("Connected to Wi-Fi")
+        # text_to_speech("Home guardian is turned on and connected to wifi")
     else:
         play_audio("wav/scanQR.mp3")
         wifi_info = scan_qr_code()
@@ -140,4 +141,4 @@ def check_internt_connection():
         pass
     return False
 if __name__ == "__main__":
-    main()
+    WIFIconnect()

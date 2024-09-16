@@ -16,6 +16,8 @@ import socket
 import os
 import requests
 
+from wifi_scanner import check_internt_connection , WIFIconnect
+
 
 # Use a lock to prevent multiple threads accessing the camera simultaneously
 video_stream_lock = threading.Lock()
@@ -144,6 +146,12 @@ class DataCollector:
 
 
 if __name__ == '__main__':
+
+    if not check_internt_connection():
+        WIFIconnect()
+    else:
+        text_to_speech("Home guardian is turned on and connected to wifi")
+
     video_stream = DataCollector()
     video_stream.run_gradio_server()
 
@@ -156,7 +164,6 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
 
     load_dotenv()
-
 
     # AWS S3 configuration
     aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
@@ -171,8 +178,6 @@ if __name__ == '__main__':
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_access_key
     )
-
-
     @router.get("/")
     async def root():
         # redirect to docs http://127.0.0.1:8000/docs
