@@ -1,113 +1,85 @@
-import cv2
-from flask import Flask
-import threading
-from models.yolov8faceOnnx import YOLOv8_face
+# gradio_app.py
 import gradio as gr
-import base64
-import datetime
+import requests
+import socket
+from fastapi import FastAPI
+import io
+from PIL import Image
 
-app = Flask(__name__)
-# Use a lock to prevent multiple threads accessing the camera simultaneously
-video_stream_lock = threading.Lock()
-
-template = 'index.html'
-
-class VideoStream:
+class GradioApp:
     def __init__(self):
-        self.device_id = 0
-        self.is_recording = False
-        self.output_name = self.genrate_output_file_name()
-        self.location = "VideoData/"
+        self.hostname = socket.gethostname()
+        self.fastapi_url = "http://localhost:8000"  # URL to the FastAPI server
 
-    def stop(self):
-        self.cap.release()
-    def start(self):
-        self.cap = cv2.VideoCapture(0)
-        self.YOLOv8_face_detector = YOLOv8_face("../models/yolov8faceOnnx/weights/yolov8n-face.onnx", conf_thres=0.45, iou_thres=0.5)
-        self.gradio_run()
+    def get_device_id(self):
+        response = requests.get(f"{self.fastapi_url}/assign_device_id?device_id=1")
+        return response.json()["message"]
 
-    def start_recording(self, fps=30):
-        if not self.is_recording:
-
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-            self.video_writer = cv2.VideoWriter(self.location + self.output_name, fourcc, fps, (1920,1080))
-            self.is_recording = True
-            print(f"Recording started. Output file: {self.output_name}")
-        else:
-            print("Recording is already in progress.")
-
-    def genrate_output_file_name(self):
-        return str(datetime.datetime.now()) + str(self.device_id) + '_HG.mp4'
+    def start_recording(self):
+        response = requests.get(f"{self.fastapi_url}/start_recording")
+        return response.json()["message"]
 
     def stop_recording(self):
-        if self.is_recording:
-            self.video_writer.release()
-            self.is_recording = False
-            print("Recording stopped.")
+        response = requests.get(f"{self.fastapi_url}/stop_recording")
+        return response.json()["message"]
+
+    def toggle_infrared(self, mode):
+        response = requests.post(f"{self.fastapi_url}/toggle_infrared", json={"mode": mode})
+        return response.json()["message"]
+
+    def fetch_video_stream(self):
+        # Return an HTML string that embeds the video stream from FastAPI
+        stream_url = f"{self.fastapi_url}/video_stream"
+        return stream_url
+
+    def live(self, show_video):
+        # Conditional rendering based on toggle state
+        if show_video:
+            iframe_html = f"""
+                          <iframe src="{self.video_url}" width="1280" height="720" ></iframe>
+                      """
         else:
-            print("No recording in progress.")
+            iframe_html = ""
 
-    def get_frame(self):
-        with video_stream_lock:
-            while True:
-                ret, frame = self.cap.read()
-                if ret:
-                    # Detect Objects
-                    boxes, scores, classids, kpts = self.YOLOv8_face_detector.detect(frame)
-                    #apply blur to detections
-                    frame = self.YOLOv8_face_detector.blur_detections(frame, boxes, scores, kpts)
-                    _, encoded_frame = cv2.imencode(".jpg", frame)
-                    frame_base64 = base64.b64encode(encoded_frame).decode("utf-8")
-                    # Create an HTML string to display the video frame
-                    html_str = f'<img src="data:image/jpeg;base64,{frame_base64}" width="640" height="480">'
-
-                    cv2.imshow("frame",frame)
-                    # write the flipped frame
-                    if self.is_recording:
-                        self.video_writer.write(frame)
+        return iframe_html
 
     def gradio_live(self):
-        # Create a custom Block for video streaming
+        self.video_url = self.fetch_video_stream()
 
-        RTPS = gr.outputs.HTML(label="Video Stream")
 
-        # # ccs center the video
-        # iface = gr.Interface(
-        #     fn=self.get_frame,
-        #     inputs=None,
-        #     outputs=RTPS,
-        #     live=True,
-        #     allow_flagging="never",
-        # )
+        with gr.Blocks() as block:
+            gr.Markdown("# Home Guardian Video Data Collection")
 
-        with gr.Blocks("Video Stream") as block:
+            device_id = gr.Markdown()
 
-            gr.Markdown("## Video Stream")
+            gr.Markdown("# Home Guardian Video Live Stream")
 
-            with gr.Column():
-                # show the device ID
-                gr.Markdown(f"### Device ID: {self.device_id}")
+            # Toggle button to show or hide the video stream
+            show_video_toggle = gr.Checkbox(label="Show Video Stream", value=False)
 
-                # iface.render()
+            # HTML component to embed the video stream
+            video_embed = gr.HTML()
 
-                gr.Markdown("## Video recording")
+            # Update the HTML component based on the toggle state
+            show_video_toggle.change(self.live, inputs=show_video_toggle, outputs=video_embed)
 
-                # button to start recording and stop recording
+            gr.Markdown("## Video Recording")
 
-                gr.Button("Start Recording").click(self.start_recording)
+            self.start = gr.Button("Start Recording")
+            self.start.click(self.start_recording, outputs=gr.outputs.HTML(label="Video Stream"))
 
-                gr.Button("Stop Recording").click(self.stop_recording)
+            self.stop = gr.Button("Stop Recording")
+            self.stop.click(self.stop_recording, outputs=gr.outputs.HTML(label="Video Stream"))
 
-        return block.launch(enable_queue=True)
+            refresh = gr.Button("Refresh")
+            refresh.click(self.get_device_id, [], outputs=device_id)
 
-    def gradio_run(self):
+            # Infrared mode toggle
+            self.infrared = gr.Radio(["On", "Off"], label="Infrared Mode")
+            self.infrared.change(self.toggle_infrared, inputs=self.infrared, outputs=gr.outputs.Textbox())
 
-        thread = threading.Thread(target=self.gradio_live)
-        thread.daemon = False
-        thread.start()
-        print("gradio live started")
+        block.launch(server_name="0.0.0.0", server_port=8001, enable_queue=True)
 
 if __name__ == '__main__':
-    video_stream = VideoStream()
-    video_stream.start()
-
+    gradio_app = GradioApp()
+    gradio_app.gradio_live()
