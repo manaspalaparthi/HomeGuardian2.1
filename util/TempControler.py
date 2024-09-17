@@ -115,7 +115,7 @@ if __name__ == "__main__":
     thermal.set_fan_speed(0.3)
     
     while True:
-        ## thermal.check_temp()
+        thermal.check_temp()
         print(thermal.cur_frequencies)
         time.sleep(10)
       

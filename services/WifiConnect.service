@@ -4,11 +4,11 @@ Description= HomeGuardian Wifi Scanner
 [Service]
 Type=simple
 ExecStartPre=/bin/sleep 10
-ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && python wifi_scanner.py"
-WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
+ExecStart=/bin/bash -c "source /home/homeguardian/miniconda3/bin/activate homeguardian && python wifi_scanner.py"
+WorkingDirectory=/home/homeguardian/HomeGuardian2.1/
 StandardOutput=inherit
 StandardError=inherit
-User=homeguardiandev
+User=homeguardian
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 RemainAfterExit=yes
 

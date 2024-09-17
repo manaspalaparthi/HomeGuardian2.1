@@ -4,12 +4,12 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "source /home/homeguardiandev/miniforge3/bin/activate homeguardian && python util/TempControler.py"
-WorkingDirectory=/home/homeguardiandev/HomeGuardian2.1/
+ExecStart=/bin/bash -c "source /home/homeguardian/miniconda3/bin/activate homeguardian && sudo python util/TempControler.py"
+WorkingDirectory=/home/homeguardian/HomeGuardian2.1/
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=homeguardiandev
+User=homeguardian
 Environment=PYTHONUNBUFFERED=1
 
 [Install]

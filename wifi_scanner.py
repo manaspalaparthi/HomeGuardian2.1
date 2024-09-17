@@ -8,6 +8,42 @@ from util.TextToSpeech import text_to_speech , play_audio
 import socket
 import time
 
+def connect(ssid, password):
+    try:
+        # Create a Wi-Fi configuration file
+        config = f"""
+country=AU
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+    
+network={{
+    ssid="{ssid}"
+    psk="{password}"
+    }}"""
+        # Handle the failure case
+        with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_config:
+            temp_config.write(config)
+            temp_config_path = temp_config.name
+
+        # Move the temp file to the correct location with sudo and change permissions
+        move_command = ["sudo", "mv", temp_config_path, "/etc/wpa_supplicant/wpa_supplicant.conf"]
+        subprocess.run(move_command, check=True)
+
+        # Apply changes using wpa_cli and check the result
+        result = subprocess.run(["sudo", "wpa_cli", "-i", "wlan0", "reconfigure"], capture_output=True)
+
+        # Check if the command was successful
+        if result.returncode == 0:
+            # Play the audio file if the reconfiguration was successful
+            play_audio("wav/online.mp3")
+
+        else: 
+            play_audio("wav/offline.mp3")
+
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred: {e}")
+
+
 def connect_to_wifi(ssid, password):
     # This function is for Unix-based systems like Linux or macOS.
     # For Windows, you need to use netsh commands.
@@ -125,7 +161,7 @@ def WIFIconnect():
             ssid = wifi_info.get('ssid')
             password = wifi_info.get('password')
             if ssid and password:
-                connect_to_wifi(ssid, password)
+                connect(ssid, password)
             else:
                 print("Invalid Wi-Fi information found in QR code")
         else:
